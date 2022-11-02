@@ -1,9 +1,9 @@
 import cv2
 import mediapipe as mp
 import tekgozl
+import serial.tools.list_ports
 
 mp_face_detection = mp.solutions.face_detection
-tek_goz = tekgozl.TekGoz('/dev/ttyUSB0')
 
 kP_X = 0.05
 kP_Y = 0.05
@@ -14,19 +14,27 @@ cam_angle_y = 43
 safe_zone_x = 8 # Angle
 safe_zone_y = 6 
 
+def tg_test():
+    ports=serial.tools.list_ports.comports()
+    return tekgozl.TekGoz(ports[0].name)
+
+tg=tg_test()
+tg.connect()
+
 def tek_goz_control_XY(x, y):
   angle_dif_x = x*cam_angle_x*kP_X #Getting the angle value ****** (*-1) ????
   angle_dif_y = y*cam_angle_y*kP_Y
 
-  if(abs(angle_dif_x)>safe_zone_x and tek_goz.limits["T"][0] < (tek_goz.getT() + angle_dif_x) < tek_goz.limits["T"][1]):
+  if(abs(angle_dif_x)>safe_zone_x and tg.limits["T"][0] < (tg.getT() + angle_dif_x) < tg.limits["T"][1]):
 
-    tek_goz.setT(tek_goz.getT() + angle_dif_x)
-    tek_goz.send_command()
+    tg.setT(tg.getT() + angle_dif_x)
+    tg.send_command()
 
-  if(abs(angle_dif_y)>safe_zone_y and tek_goz.limits["WP"][0] < (tek_goz.getWP() + angle_dif_x) < tek_goz.limits["WP"][1]):
+  if(abs(angle_dif_y)>safe_zone_y and tg.limits["WP"][0] < (tg.getWP() + angle_dif_x) < tg.limits["WP"][1]):
 
-    tek_goz.setWP(tek_goz.getWP() + angle_dif_y) 
-    tek_goz.send_command()
+    tg.setWP(tek_goz.getWP() + angle_dif_y) 
+    tg.send_command()
+
 
 # For webcam input:
 cap = cv2.VideoCapture(0)

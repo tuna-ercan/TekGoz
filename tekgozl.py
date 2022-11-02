@@ -46,6 +46,7 @@ class TekGoz():
         self.last_time=time.time()
         self.rate_limit = 0.1 # rate limit in seconds
         self.request_list = [] # message list
+        self.__thread_starter__()
 
     def __request_handler_thread__(self):
         while True:
